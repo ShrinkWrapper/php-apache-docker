@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       php_version:
-        description: 'PHP version to build (e.g. 8.3, 8.4, 8.5). Leave blank to use the Dockerfile default.'
+        description: 'PHP version to build (e.g. 7.4, 8.0, 8.5). Leave blank to use the Dockerfile default.'
         required: false
         type: string
         default: ''
@@ -49,9 +49,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-php${{ steps.php.outputs.version }}-${{ github.sha }}
+        key: ${{ runner.os }}-buildx-${{ steps.php.outputs.version }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-buildx-php${{ steps.php.outputs.version }}-
+          ${{ runner.os }}-buildx-${{ steps.php.outputs.version }}-
           ${{ runner.os }}-buildx-
 
     - name: Docker Metadata action
@@ -60,10 +60,9 @@ jobs:
       with:
         images: ghcr.io/${{ github.repository }}
         tags: |
-            type=raw,value=php${{ steps.php.outputs.version }}
-            type=raw,value=php${{ steps.php.outputs.version }}-{{sha}}
-            type=ref,event=branch,suffix=-php${{ steps.php.outputs.version }}
-            type=sha,suffix=-php${{ steps.php.outputs.version }}
+            type=raw,value=${{ steps.php.outputs.version }}
+            type=raw,value=${{ steps.php.outputs.version }}-{{sha}}
+            type=ref,event=branch,suffix=-${{ steps.php.outputs.version }}
 
     - name: Build and push Docker images
       uses: docker/build-push-action@v7
